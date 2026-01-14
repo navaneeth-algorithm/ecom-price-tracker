@@ -1,4 +1,6 @@
 from playwright.sync_api import sync_playwright
+from datetime import datetime
+import data_storage
 
 # Define the target e-commerce product URL (simplified)
 product_url = "https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG"
@@ -46,15 +48,42 @@ with sync_playwright() as p:
     if product_price != "N/A" and not product_price.startswith('₹'):
         product_price = f"₹{product_price}"
     
+    # Generate timestamp for the scrape
+    scrape_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
     # Print the extracted data in a formatted manner
     print("=" * 80)
     print("EXTRACTED PRODUCT INFORMATION")
     print("=" * 80)
     print(f"\n📦 Product Name:\n   {product_name}\n")
     print(f"💰 Product Price:\n   {product_price}\n")
+    print(f"🕒 Scrape Timestamp:\n   {scrape_timestamp}\n")
     print("=" * 80)
+    
+    # Save product data to CSV storage
+    print("\n📝 Saving product data to storage...")
+    
+    # Initialize storage if it doesn't exist
+    data_storage.setup_storage()
+    
+    # Extract just the price value without currency symbol for storage
+    price_value = product_price.replace('₹', '').replace(',', '').strip()
+    
+    # Save the product data
+    success = data_storage.add_product(
+        product_name=product_name,
+        product_url=product_url,
+        current_price=price_value,
+        currency="₹",
+        image_url=""
+    )
+    
+    if success:
+        print("✅ Product data saved successfully to CSV!")
+    else:
+        print("❌ Failed to save product data!")
     
     # Close the browser
     browser.close()
 
-print("\n✅ Data extraction completed successfully!")
+print("\n✅ Data extraction and storage completed successfully!")
