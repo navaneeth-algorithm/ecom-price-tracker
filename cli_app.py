@@ -8,6 +8,9 @@ import data_storage
 import sys
 import argparse
 from pathlib import Path
+from playwright.sync_api import sync_playwright
+from datetime import datetime
+import time
 
 
 def display_menu():
@@ -271,6 +274,224 @@ def remove_product_cli():
     print("For now, manually edit products.json to remove products.")
 
 
+def scrape_single_product(page, product):
+    """
+    Scrape data from a single product page.
+    
+    Args:
+        page: Playwright page object
+        product (dict): Product information including name and URL
+    
+    Returns:
+        dict: Scraped product data or None if scraping failed
+    """
+    product_url = product['url']
+    product_name_from_config = product.get('name', 'Unknown Product')
+    
+    print(f"\n{'='*80}")
+    print(f"Scraping: {product_name_from_config}")
+    print(f"URL: {product_url}")
+    print(f"{'='*80}")
+    
+    try:
+        # Navigate to the product URL
+        page.goto(product_url, wait_until='domcontentloaded', timeout=30000)
+        
+        # Wait for the product title to be visible
+        page.wait_for_selector('#productTitle', timeout=30000)
+        
+        # Extract product name
+        product_name = page.query_selector('#productTitle').inner_text().strip()
+        
+        # Extract product price
+        page.wait_for_selector('.a-price-whole', timeout=30000)
+        product_price_element = page.query_selector('.a-price-whole')
+        product_price = product_price_element.inner_text().strip() if product_price_element else "N/A"
+        
+        # Clean up price formatting
+        product_price = product_price.replace('\n', '').replace('.', '').strip()
+        
+        # Generate timestamp
+        scrape_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Print extracted data
+        print(f"\n📦 Product Name: {product_name}")
+        print(f"💰 Product Price: ₹{product_price}")
+        print(f"🕒 Scrape Timestamp: {scrape_timestamp}")
+        
+        return {
+            'name': product_name,
+            'url': product_url,
+            'price': product_price,
+            'timestamp': scrape_timestamp
+        }
+    
+    except Exception as e:
+        print(f"\n❌ Error scraping product: {e}")
+        return None
+
+
+def run_check_command():
+    """
+    CLI command handler for 'check' command.
+    Executes the full scraping process for all tracked products,
+    saves new prices, and triggers price drop notifications.
+    """
+    print("\n" + "=" * 80)
+    print("🔍 CHECKING PRICES FOR ALL TRACKED PRODUCTS")
+    print("=" * 80)
+    
+    # Initialize CSV storage
+    data_storage.setup_storage()
+    
+    # Load all tracked products
+    try:
+        products = product_loader.load_products()
+        
+        if not products:
+            print("\n⚠️  No products found in configuration.")
+            print("Add some products first using: python cli_app.py add")
+            return
+        
+        print(f"\n✓ Found {len(products)} product(s) to track")
+        
+    except Exception as e:
+        print(f"\n❌ Error loading products: {e}")
+        return
+    
+    # Launch browser for scraping
+    print("\n🚀 Launching browser...")
+    with sync_playwright() as p:
+        # Launch Chromium browser
+        browser = p.chromium.launch(
+            headless=False,
+            args=['--disable-blink-features=AutomationControlled']
+        )
+        
+        # Create browser context
+        context = browser.new_context(
+            user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            viewport={'width': 1920, 'height': 1080},
+            locale='en-IN'
+        )
+        
+        page = context.new_page()
+        
+        # Track results
+        success_count = 0
+        failed_count = 0
+        price_drops = []
+        
+        # Iterate through all products
+        for idx, product in enumerate(products, 1):
+            print(f"\n\n{'#'*80}")
+            print(f"Processing Product {idx}/{len(products)}")
+            print(f"{'#'*80}")
+            
+            # Scrape product data
+            scraped_data = scrape_single_product(page, product)
+            
+            if scraped_data:
+                # Extract price value
+                price_value = scraped_data['price'].replace(',', '').strip()
+                
+                # Get historical prices before saving new price
+                print(f"\n📊 Checking price history...")
+                historical_prices = data_storage.get_historical_prices(scraped_data['url'])
+                
+                # Check for price drop
+                if historical_prices:
+                    print(f"\n🔍 Analyzing price drop...")
+                    is_price_drop = data_storage.detect_price_drop(
+                        product_id=scraped_data['url'],
+                        current_price=price_value,
+                        historical_prices_list=historical_prices,
+                        price_drop_threshold=0
+                    )
+                    
+                    if is_price_drop:
+                        # Calculate savings
+                        lowest_historical_price = min(float(p['price']) for p in historical_prices)
+                        current_price_float = float(price_value)
+                        savings = lowest_historical_price - current_price_float
+                        savings_percent = (savings / lowest_historical_price) * 100
+                        
+                        # Store price drop info
+                        price_drops.append({
+                            'name': scraped_data['name'],
+                            'current_price': current_price_float,
+                            'previous_price': lowest_historical_price,
+                            'savings': savings,
+                            'savings_percent': savings_percent,
+                            'url': scraped_data['url']
+                        })
+                        
+                        # Print price drop notification
+                        print("\n" + "🎉" * 40)
+                        print("🚨 PRICE DROP ALERT! 🚨")
+                        print("🎉" * 40)
+                        print(f"\n📦 Product: {scraped_data['name'][:80]}...")
+                        print(f"💰 New Price: ₹{current_price_float:,.2f}")
+                        print(f"📉 Previous Lowest: ₹{lowest_historical_price:,.2f}")
+                        print(f"💵 You Save: ₹{savings:,.2f} ({savings_percent:.2f}% OFF)")
+                        print(f"🔗 URL: {scraped_data['url'][:60]}...")
+                        print("\n" + "🎉" * 40)
+                
+                # Save to storage
+                print(f"\n📝 Saving to storage...")
+                success = data_storage.add_product(
+                    product_name=scraped_data['name'],
+                    product_url=scraped_data['url'],
+                    current_price=price_value,
+                    currency="₹",
+                    image_url=""
+                )
+                
+                if success:
+                    print(f"✅ Product {idx} saved successfully!")
+                    success_count += 1
+                else:
+                    print(f"❌ Failed to save product {idx}")
+                    failed_count += 1
+            else:
+                print(f"❌ Failed to scrape product {idx}")
+                failed_count += 1
+            
+            # Delay between requests
+            if idx < len(products):
+                print(f"\n⏳ Waiting 3 seconds before next product...")
+                time.sleep(3)
+        
+        # Close browser
+        browser.close()
+        
+        # Print summary
+        print("\n" + "=" * 80)
+        print("SCRAPING SUMMARY")
+        print("=" * 80)
+        print(f"✅ Successfully scraped and saved: {success_count}")
+        print(f"❌ Failed: {failed_count}")
+        print(f"📊 Total products: {len(products)}")
+        print("=" * 80)
+        
+        # Print price drop summary
+        if price_drops:
+            print("\n" + "🎉" * 40)
+            print(f"🚨 FOUND {len(price_drops)} PRICE DROP(S)!")
+            print("🎉" * 40)
+            
+            for drop in price_drops:
+                print(f"\n📦 {drop['name'][:60]}...")
+                print(f"   💰 New: ₹{drop['current_price']:,.2f} | Previous: ₹{drop['previous_price']:,.2f}")
+                print(f"   💵 Save: ₹{drop['savings']:,.2f} ({drop['savings_percent']:.2f}% OFF)")
+            
+            print("\n" + "🎉" * 40)
+        else:
+            print("\n📊 No price drops detected in this check.")
+        
+        print("\n✅ Price check completed!")
+
+
 def main():
     """Main CLI application loop"""
     print("\n🚀 Welcome to E-commerce Price Tracker CLI!")
@@ -319,6 +540,7 @@ def setup_argparse():
 Examples:
   python cli_app.py view          - View all tracked products with latest prices
   python cli_app.py add           - Quick add a new product
+  python cli_app.py check         - Scrape all products, save prices, and check for drops
   python cli_app.py interactive   - Launch interactive menu (default)
         """
     )
@@ -326,9 +548,9 @@ Examples:
     parser.add_argument(
         'command',
         nargs='?',
-        choices=['view', 'add', 'interactive'],
+        choices=['view', 'add', 'check', 'interactive'],
         default='interactive',
-        help='Command to execute: view (display products), add (quick add product), interactive (full menu)'
+        help='Command to execute: view (display products), add (quick add), check (scrape & alert), interactive (full menu)'
     )
     
     return parser
@@ -346,6 +568,9 @@ if __name__ == "__main__":
     elif args.command == 'add':
         # Quick add mode: python cli_app.py add
         quick_add_product()
+    elif args.command == 'check':
+        # Check command: Scrape all products and check for price drops
+        run_check_command()
     else:
         # Full interactive CLI mode (default)
         main()

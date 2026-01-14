@@ -2,6 +2,21 @@
 
 ## Available Commands
 
+### Check Prices (Scrape & Alert)
+```bash
+python tracker.py check
+# or
+python cli_app.py check
+```
+Executes the full price tracking workflow:
+- Scrapes all tracked products
+- Saves new prices to CSV storage
+- Compares with historical prices
+- Displays price drop alerts
+- Shows scraping summary
+
+**Estimated Time**: 3-5 seconds per product
+
 ### View All Tracked Products
 ```bash
 python cli_app.py view
@@ -38,10 +53,45 @@ Shows full menu with options:
 
 ### Show Help
 ```bash
+python tracker.py --help
+# or
 python cli_app.py --help
 ```
 
 ## Examples
+
+### Example 0: Check all prices (scrape and alert)
+```bash
+$ python tracker.py check
+
+================================================================================
+🔍 CHECKING PRICES FOR ALL TRACKED PRODUCTS
+================================================================================
+✓ Found 4 product(s) to track
+🚀 Launching browser...
+
+################################################################################
+Processing Product 1/4
+################################################################################
+
+📦 Product Name: Apple AirPods 4 Wireless Earbuds...
+💰 Product Price: ₹16,900
+📊 Checking price history...
+🔍 Analyzing price drop...
+✓ No significant price drop
+
+✅ Product 1 saved successfully!
+
+[... continues for all products ...]
+
+================================================================================
+SCRAPING SUMMARY
+================================================================================
+✅ Successfully scraped and saved: 4
+❌ Failed: 0
+📊 No price drops detected in this check.
+✅ Price check completed!
+```
 
 ### Example 1: View all products
 ```bash
