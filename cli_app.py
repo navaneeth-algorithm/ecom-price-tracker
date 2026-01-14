@@ -7,10 +7,22 @@ import product_loader
 import data_storage
 import sys
 import argparse
+import logging
 from pathlib import Path
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
 from datetime import datetime
 import time
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('price_tracker.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
 def display_menu():
@@ -293,25 +305,91 @@ def scrape_single_product(page, product):
     print(f"URL: {product_url}")
     print(f"{'='*80}")
     
+    # Navigate to product page
     try:
-        # Navigate to the product URL
+        logger.info(f"Navigating to URL: {product_url}")
         page.goto(product_url, wait_until='domcontentloaded', timeout=30000)
-        
-        # Wait for the product title to be visible
+        logger.info(f"Successfully navigated to {product_url}")
+    except PlaywrightTimeoutError:
+        error_msg = f"Timeout error: Page failed to load within 30 seconds for URL: {product_url}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return None
+    except PlaywrightError as e:
+        error_msg = f"Playwright error during navigation to {product_url}: {str(e)}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return None
+    except Exception as e:
+        error_msg = f"Unexpected error during navigation to {product_url}: {type(e).__name__} - {str(e)}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return None
+    
+    # Extract product name
+    try:
+        logger.info(f"Waiting for product title element for {product_url}")
         page.wait_for_selector('#productTitle', timeout=30000)
+        product_name_element = page.query_selector('#productTitle')
         
-        # Extract product name
-        product_name = page.query_selector('#productTitle').inner_text().strip()
+        if not product_name_element:
+            raise ValueError("Product title element not found")
         
-        # Extract product price
+        product_name = product_name_element.inner_text().strip()
+        logger.info(f"Successfully extracted product name: {product_name[:50]}...")
+        
+    except PlaywrightTimeoutError:
+        error_msg = f"Timeout: Product title element '#productTitle' not found within 30 seconds for {product_url}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return None
+    except ValueError as e:
+        error_msg = f"Element not found: {str(e)} for URL: {product_url}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return None
+    except Exception as e:
+        error_msg = f"Error extracting product name from {product_url}: {type(e).__name__} - {str(e)}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return None
+    
+    # Extract product price
+    try:
+        logger.info(f"Waiting for price element for {product_url}")
         page.wait_for_selector('.a-price-whole', timeout=30000)
         product_price_element = page.query_selector('.a-price-whole')
-        product_price = product_price_element.inner_text().strip() if product_price_element else "N/A"
+        
+        if not product_price_element:
+            raise ValueError("Price element not found")
+        
+        product_price = product_price_element.inner_text().strip()
+        
+        if not product_price or product_price == "":
+            raise ValueError("Price text is empty")
         
         # Clean up price formatting
         product_price = product_price.replace('\n', '').replace('.', '').strip()
+        logger.info(f"Successfully extracted price: ₹{product_price}")
         
-        # Generate timestamp
+    except PlaywrightTimeoutError:
+        error_msg = f"Timeout: Price element '.a-price-whole' not found within 30 seconds for {product_url}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return None
+    except ValueError as e:
+        error_msg = f"Price extraction error: {str(e)} for URL: {product_url}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return None
+    except Exception as e:
+        error_msg = f"Error extracting price from {product_url}: {type(e).__name__} - {str(e)}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return None
+    
+    # Generate timestamp and return data
+    try:
         scrape_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         # Print extracted data
@@ -319,15 +397,18 @@ def scrape_single_product(page, product):
         print(f"💰 Product Price: ₹{product_price}")
         print(f"🕒 Scrape Timestamp: {scrape_timestamp}")
         
+        logger.info(f"Successfully scraped product: {product_name[:50]}... - ₹{product_price}")
+        
         return {
             'name': product_name,
             'url': product_url,
             'price': product_price,
             'timestamp': scrape_timestamp
         }
-    
     except Exception as e:
-        print(f"\n❌ Error scraping product: {e}")
+        error_msg = f"Error formatting scraped data for {product_url}: {type(e).__name__} - {str(e)}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
         return None
 
 
@@ -341,155 +422,249 @@ def run_check_command():
     print("🔍 CHECKING PRICES FOR ALL TRACKED PRODUCTS")
     print("=" * 80)
     
+    logger.info("Starting price check command")
+    
     # Initialize CSV storage
-    data_storage.setup_storage()
+    try:
+        data_storage.setup_storage()
+        logger.info("CSV storage initialized successfully")
+    except Exception as e:
+        error_msg = f"Failed to initialize storage: {type(e).__name__} - {str(e)}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return
     
     # Load all tracked products
     try:
         products = product_loader.load_products()
         
         if not products:
+            logger.warning("No products found in configuration")
             print("\n⚠️  No products found in configuration.")
             print("Add some products first using: python cli_app.py add")
             return
         
+        logger.info(f"Found {len(products)} product(s) to track")
         print(f"\n✓ Found {len(products)} product(s) to track")
         
+    except FileNotFoundError as e:
+        error_msg = f"Configuration file not found: {str(e)}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return
     except Exception as e:
-        print(f"\n❌ Error loading products: {e}")
+        error_msg = f"Error loading products: {type(e).__name__} - {str(e)}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
         return
     
     # Launch browser for scraping
     print("\n🚀 Launching browser...")
-    with sync_playwright() as p:
-        # Launch Chromium browser
-        browser = p.chromium.launch(
-            headless=False,
-            args=['--disable-blink-features=AutomationControlled']
-        )
-        
-        # Create browser context
-        context = browser.new_context(
-            user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            viewport={'width': 1920, 'height': 1080},
-            locale='en-IN'
-        )
-        
-        page = context.new_page()
-        
-        # Track results
-        success_count = 0
-        failed_count = 0
-        price_drops = []
-        
-        # Iterate through all products
-        for idx, product in enumerate(products, 1):
-            print(f"\n\n{'#'*80}")
-            print(f"Processing Product {idx}/{len(products)}")
-            print(f"{'#'*80}")
-            
-            # Scrape product data
-            scraped_data = scrape_single_product(page, product)
-            
-            if scraped_data:
-                # Extract price value
-                price_value = scraped_data['price'].replace(',', '').strip()
-                
-                # Get historical prices before saving new price
-                print(f"\n📊 Checking price history...")
-                historical_prices = data_storage.get_historical_prices(scraped_data['url'])
-                
-                # Check for price drop
-                if historical_prices:
-                    print(f"\n🔍 Analyzing price drop...")
-                    is_price_drop = data_storage.detect_price_drop(
-                        product_id=scraped_data['url'],
-                        current_price=price_value,
-                        historical_prices_list=historical_prices,
-                        price_drop_threshold=0
-                    )
-                    
-                    if is_price_drop:
-                        # Calculate savings
-                        lowest_historical_price = min(float(p['price']) for p in historical_prices)
-                        current_price_float = float(price_value)
-                        savings = lowest_historical_price - current_price_float
-                        savings_percent = (savings / lowest_historical_price) * 100
-                        
-                        # Store price drop info
-                        price_drops.append({
-                            'name': scraped_data['name'],
-                            'current_price': current_price_float,
-                            'previous_price': lowest_historical_price,
-                            'savings': savings,
-                            'savings_percent': savings_percent,
-                            'url': scraped_data['url']
-                        })
-                        
-                        # Print price drop notification
-                        print("\n" + "🎉" * 40)
-                        print("🚨 PRICE DROP ALERT! 🚨")
-                        print("🎉" * 40)
-                        print(f"\n📦 Product: {scraped_data['name'][:80]}...")
-                        print(f"💰 New Price: ₹{current_price_float:,.2f}")
-                        print(f"📉 Previous Lowest: ₹{lowest_historical_price:,.2f}")
-                        print(f"💵 You Save: ₹{savings:,.2f} ({savings_percent:.2f}% OFF)")
-                        print(f"🔗 URL: {scraped_data['url'][:60]}...")
-                        print("\n" + "🎉" * 40)
-                
-                # Save to storage
-                print(f"\n📝 Saving to storage...")
-                success = data_storage.add_product(
-                    product_name=scraped_data['name'],
-                    product_url=scraped_data['url'],
-                    current_price=price_value,
-                    currency="₹",
-                    image_url=""
+    logger.info("Launching Playwright browser")
+    
+    try:
+        with sync_playwright() as p:
+            # Launch Chromium browser
+            try:
+                browser = p.chromium.launch(
+                    headless=False,
+                    args=['--disable-blink-features=AutomationControlled']
                 )
+                logger.info("Browser launched successfully")
+            except PlaywrightError as e:
+                error_msg = f"Failed to launch browser: {str(e)}"
+                logger.error(error_msg)
+                print(f"\n❌ {error_msg}")
+                return
+            except Exception as e:
+                error_msg = f"Unexpected error launching browser: {type(e).__name__} - {str(e)}"
+                logger.error(error_msg)
+                print(f"\n❌ {error_msg}")
+                return
+            
+            # Create browser context
+            try:
+                context = browser.new_context(
+                    user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    viewport={'width': 1920, 'height': 1080},
+                    locale='en-IN'
+                )
+                page = context.new_page()
+                logger.info("Browser context and page created successfully")
+            except Exception as e:
+                error_msg = f"Failed to create browser context: {type(e).__name__} - {str(e)}"
+                logger.error(error_msg)
+                print(f"\n❌ {error_msg}")
+                browser.close()
+                return
+            
+            # Track results
+            success_count = 0
+            failed_count = 0
+            price_drops = []
+            
+            # Iterate through all products
+            for idx, product in enumerate(products, 1):
+                print(f"\n\n{'#'*80}")
+                print(f"Processing Product {idx}/{len(products)}")
+                print(f"{'#'*80}")
                 
-                if success:
-                    print(f"✅ Product {idx} saved successfully!")
-                    success_count += 1
+                logger.info(f"Processing product {idx}/{len(products)}: {product.get('name', 'Unknown')}")
+                
+                # Scrape product data
+                scraped_data = scrape_single_product(page, product)
+                
+                if scraped_data:
+                    try:
+                        # Extract price value
+                        price_value = scraped_data['price'].replace(',', '').strip()
+                        
+                        # Get historical prices before saving new price
+                        print(f"\n📊 Checking price history...")
+                        logger.info(f"Retrieving historical prices for {scraped_data['url']}")
+                        
+                        try:
+                            historical_prices = data_storage.get_historical_prices(scraped_data['url'])
+                        except Exception as e:
+                            error_msg = f"Error retrieving historical prices: {type(e).__name__} - {str(e)}"
+                            logger.error(error_msg)
+                            print(f"\n⚠️  {error_msg}")
+                            historical_prices = []
+                        
+                        # Check for price drop
+                        if historical_prices:
+                            print(f"\n🔍 Analyzing price drop...")
+                            logger.info(f"Analyzing price drop for {scraped_data['url']}")
+                            
+                            try:
+                                is_price_drop = data_storage.detect_price_drop(
+                                    product_id=scraped_data['url'],
+                                    current_price=price_value,
+                                    historical_prices_list=historical_prices,
+                                    price_drop_threshold=0
+                                )
+                                
+                                if is_price_drop:
+                                    # Calculate savings
+                                    lowest_historical_price = min(float(p['price']) for p in historical_prices)
+                                    current_price_float = float(price_value)
+                                    savings = lowest_historical_price - current_price_float
+                                    savings_percent = (savings / lowest_historical_price) * 100
+                                    
+                                    # Store price drop info
+                                    price_drops.append({
+                                        'name': scraped_data['name'],
+                                        'current_price': current_price_float,
+                                        'previous_price': lowest_historical_price,
+                                        'savings': savings,
+                                        'savings_percent': savings_percent,
+                                        'url': scraped_data['url']
+                                    })
+                                    
+                                    logger.info(f"Price drop detected: {scraped_data['name'][:50]}... - Save ₹{savings:.2f}")
+                                    
+                                    # Print price drop notification
+                                    print("\n" + "🎉" * 40)
+                                    print("🚨 PRICE DROP ALERT! 🚨")
+                                    print("🎉" * 40)
+                                    print(f"\n📦 Product: {scraped_data['name'][:80]}...")
+                                    print(f"💰 New Price: ₹{current_price_float:,.2f}")
+                                    print(f"📉 Previous Lowest: ₹{lowest_historical_price:,.2f}")
+                                    print(f"💵 You Save: ₹{savings:,.2f} ({savings_percent:.2f}% OFF)")
+                                    print(f"🔗 URL: {scraped_data['url'][:60]}...")
+                                    print("\n" + "🎉" * 40)
+                                    
+                            except ValueError as e:
+                                error_msg = f"Error analyzing price drop (invalid price value): {str(e)}"
+                                logger.error(error_msg)
+                                print(f"\n⚠️  {error_msg}")
+                            except Exception as e:
+                                error_msg = f"Error detecting price drop: {type(e).__name__} - {str(e)}"
+                                logger.error(error_msg)
+                                print(f"\n⚠️  {error_msg}")
+                        
+                        # Save to storage
+                        print(f"\n📝 Saving to storage...")
+                        logger.info(f"Saving product to storage: {scraped_data['name'][:50]}...")
+                        
+                        try:
+                            success = data_storage.add_product(
+                                product_name=scraped_data['name'],
+                                product_url=scraped_data['url'],
+                                current_price=price_value,
+                                currency="₹",
+                                image_url=""
+                            )
+                            
+                            if success:
+                                print(f"✅ Product {idx} saved successfully!")
+                                logger.info(f"Product {idx} saved successfully")
+                                success_count += 1
+                            else:
+                                print(f"❌ Failed to save product {idx}")
+                                logger.warning(f"Failed to save product {idx}")
+                                failed_count += 1
+                                
+                        except Exception as e:
+                            error_msg = f"Error saving product to storage: {type(e).__name__} - {str(e)}"
+                            logger.error(error_msg)
+                            print(f"\n❌ {error_msg}")
+                            failed_count += 1
+                            
+                    except Exception as e:
+                        error_msg = f"Error processing scraped data: {type(e).__name__} - {str(e)}"
+                        logger.error(error_msg)
+                        print(f"\n❌ {error_msg}")
+                        failed_count += 1
                 else:
-                    print(f"❌ Failed to save product {idx}")
+                    logger.warning(f"Failed to scrape product {idx}")
+                    print(f"❌ Failed to scrape product {idx}")
                     failed_count += 1
-            else:
-                print(f"❌ Failed to scrape product {idx}")
-                failed_count += 1
+                
+                # Delay between requests
+                if idx < len(products):
+                    print(f"\n⏳ Waiting 3 seconds before next product...")
+                    time.sleep(3)
             
-            # Delay between requests
-            if idx < len(products):
-                print(f"\n⏳ Waiting 3 seconds before next product...")
-                time.sleep(3)
-        
-        # Close browser
-        browser.close()
-        
-        # Print summary
-        print("\n" + "=" * 80)
-        print("SCRAPING SUMMARY")
-        print("=" * 80)
-        print(f"✅ Successfully scraped and saved: {success_count}")
-        print(f"❌ Failed: {failed_count}")
-        print(f"📊 Total products: {len(products)}")
-        print("=" * 80)
-        
-        # Print price drop summary
-        if price_drops:
-            print("\n" + "🎉" * 40)
-            print(f"🚨 FOUND {len(price_drops)} PRICE DROP(S)!")
-            print("🎉" * 40)
+            # Close browser
+            try:
+                browser.close()
+                logger.info("Browser closed successfully")
+            except Exception as e:
+                logger.warning(f"Error closing browser: {type(e).__name__} - {str(e)}")
             
-            for drop in price_drops:
-                print(f"\n📦 {drop['name'][:60]}...")
-                print(f"   💰 New: ₹{drop['current_price']:,.2f} | Previous: ₹{drop['previous_price']:,.2f}")
-                print(f"   💵 Save: ₹{drop['savings']:,.2f} ({drop['savings_percent']:.2f}% OFF)")
-            
-            print("\n" + "🎉" * 40)
-        else:
-            print("\n📊 No price drops detected in this check.")
+    except Exception as e:
+        error_msg = f"Unexpected error during scraping process: {type(e).__name__} - {str(e)}"
+        logger.error(error_msg)
+        print(f"\n❌ {error_msg}")
+        return
+    
+    # Print summary
+    print("\n" + "=" * 80)
+    print("SCRAPING SUMMARY")
+    print("=" * 80)
+    print(f"✅ Successfully scraped and saved: {success_count}")
+    print(f"❌ Failed: {failed_count}")
+    print(f"📊 Total products: {len(products)}")
+    print("=" * 80)
+    
+    # Print price drop summary
+    if price_drops:
+        print("\n" + "🎉" * 40)
+        print(f"🚨 FOUND {len(price_drops)} PRICE DROP(S)!")
+        print("🎉" * 40)
         
-        print("\n✅ Price check completed!")
+        for drop in price_drops:
+            print(f"\n📦 {drop['name'][:60]}...")
+            print(f"   💰 New: ₹{drop['current_price']:,.2f} | Previous: ₹{drop['previous_price']:,.2f}")
+            print(f"   💵 Save: ₹{drop['savings']:,.2f} ({drop['savings_percent']:.2f}% OFF)")
+        
+        print("\n" + "🎉" * 40)
+    else:
+        print("\n📊 No price drops detected in this check.")
+    
+    logger.info("Price check completed")
+    print("\n✅ Price check completed!")
 
 
 def main():

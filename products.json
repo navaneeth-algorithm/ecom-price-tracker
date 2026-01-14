@@ -8,23 +8,16 @@
   },
   {
     "id": 2,
-    "name": "Amazon Product 1",
-    "url": "https://www.amazon.in/dp/B0G12JYP7G",
-    "category": "Electronics",
+    "name": "Invalid Domain Test",
+    "url": "https://invalid-domain-xyz.com/product",
+    "category": "Test",
     "active": true
   },
   {
     "id": 3,
-    "name": "Amazon Product 2",
-    "url": "https://www.amazon.in/dp/B0CQM2L6DQ",
-    "category": "Electronics",
-    "active": true
-  },
-  {
-    "id": 4,
-    "name": "Amazon Product 3",
-    "url": "https://www.amazon.in/dp/B0D96G1XZ5",
-    "category": "Electronics",
+    "name": "Missing Elements Test",
+    "url": "https://www.google.com",
+    "category": "Test",
     "active": true
   }
 ]
