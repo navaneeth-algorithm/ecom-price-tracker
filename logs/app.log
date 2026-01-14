@@ -1,0 +1,69 @@
+2026-01-14 17:36:35,306 - cli_app - INFO - E-commerce Price Tracker CLI module loaded
+2026-01-14 17:36:35,308 - cli_app - INFO - Starting view products command
+2026-01-14 17:49:06,741 - cli_app - INFO - E-commerce Price Tracker CLI module loaded
+2026-01-14 17:49:06,827 - cli_app - INFO - E-commerce Price Tracker CLI module loaded
+2026-01-14 17:49:06,829 - cli_app - INFO - Starting price check command
+2026-01-14 17:49:06,829 - cli_app - INFO - CSV storage initialized successfully
+2026-01-14 17:49:06,829 - cli_app - INFO - Found 3 product(s) to track
+2026-01-14 17:49:06,829 - cli_app - INFO - Launching Playwright browser
+2026-01-14 17:49:07,310 - cli_app - INFO - Browser launched successfully
+2026-01-14 17:49:07,729 - cli_app - INFO - Browser context and page created successfully
+2026-01-14 17:49:07,729 - cli_app - INFO - Processing product 1/3: Apple AirPods 4
+2026-01-14 17:49:07,729 - cli_app - INFO - Processing product 1/3: Apple AirPods 4
+2026-01-14 17:49:07,729 - cli_app - INFO - Navigating to URL: https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:49:09,585 - cli_app - INFO - Successfully navigated to https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:49:09,585 - cli_app - INFO - Waiting for product title element for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:49:10,382 - cli_app - INFO - Successfully extracted product name: Apple AirPods 4 Wireless Earbuds, Bluetooth Headph...
+2026-01-14 17:49:10,382 - cli_app - INFO - Waiting for price element for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:49:10,392 - cli_app - INFO - Successfully extracted price: ₹16,900
+2026-01-14 17:49:10,393 - cli_app - INFO - Successfully scraped product: Apple AirPods 4 Wireless Earbuds, Bluetooth Headph... - ₹16,900
+2026-01-14 17:49:10,393 - cli_app - INFO - Retrieving historical prices for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:49:10,393 - cli_app - INFO - Analyzing price drop for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:49:10,393 - cli_app - INFO - Saving product to storage: Apple AirPods 4 Wireless Earbuds, Bluetooth Headph...
+2026-01-14 17:49:10,393 - cli_app - INFO - Product 1 saved successfully
+2026-01-14 17:49:13,398 - cli_app - INFO - Processing product 2/3: Invalid Domain Test
+2026-01-14 17:49:13,399 - cli_app - INFO - Processing product 2/3: Invalid Domain Test
+2026-01-14 17:49:13,399 - cli_app - INFO - Navigating to URL: https://invalid-domain-xyz.com/product
+2026-01-14 17:49:15,776 - cli_app - ERROR - Playwright error during navigation to https://invalid-domain-xyz.com/product: Page.goto: net::ERR_NAME_NOT_RESOLVED at https://invalid-domain-xyz.com/product
+Call log:
+  - navigating to "https://invalid-domain-xyz.com/product", waiting until "domcontentloaded"
+
+2026-01-14 17:49:15,776 - cli_app - WARNING - Failed to scrape product 2
+2026-01-14 17:49:18,781 - cli_app - INFO - Processing product 3/3: Missing Elements Test
+2026-01-14 17:49:18,782 - cli_app - INFO - Processing product 3/3: Missing Elements Test
+2026-01-14 17:49:18,782 - cli_app - INFO - Navigating to URL: https://www.google.com
+2026-01-14 17:49:19,387 - cli_app - INFO - Successfully navigated to https://www.google.com
+2026-01-14 17:49:19,387 - cli_app - INFO - Waiting for product title element for https://www.google.com
+2026-01-14 17:49:49,393 - cli_app - ERROR - Timeout: Product title element '#productTitle' not found within 30 seconds for https://www.google.com
+2026-01-14 17:49:49,393 - cli_app - WARNING - Failed to scrape product 3
+2026-01-14 17:49:49,476 - cli_app - INFO - Browser closed successfully
+2026-01-14 17:49:49,480 - cli_app - INFO - Scraping summary: Success=1, Failed=2, Total=3
+2026-01-14 17:49:49,480 - cli_app - INFO - Price check completed
+2026-01-14 17:52:59,665 - cli_app - INFO - E-commerce Price Tracker CLI module loaded
+2026-01-14 17:52:59,667 - cli_app - INFO - Starting price check command
+2026-01-14 17:52:59,667 - cli_app - INFO - CSV storage initialized successfully
+2026-01-14 17:52:59,667 - cli_app - INFO - Found 3 product(s) to track
+2026-01-14 17:52:59,667 - cli_app - INFO - Launching Playwright browser
+2026-01-14 17:53:00,102 - cli_app - INFO - Browser launched successfully
+2026-01-14 17:53:00,529 - cli_app - INFO - Browser context and page created successfully
+2026-01-14 17:53:00,530 - cli_app - INFO - Processing product 1/3: Apple AirPods 4
+2026-01-14 17:53:00,530 - cli_app - INFO - Processing product 1/3: Apple AirPods 4
+2026-01-14 17:53:00,530 - cli_app - INFO - Navigating to URL: https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:53:03,129 - cli_app - INFO - Successfully navigated to https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:53:03,129 - cli_app - INFO - Waiting for product title element for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:53:03,242 - cli_app - INFO - Successfully extracted product name: Apple AirPods 4 Wireless Earbuds, Bluetooth Headph...
+2026-01-14 17:53:03,243 - cli_app - INFO - Waiting for price element for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:53:03,907 - cli_app - INFO - Successfully extracted price: ₹16,900
+2026-01-14 17:53:03,908 - cli_app - INFO - Successfully scraped product: Apple AirPods 4 Wireless Earbuds, Bluetooth Headph... - ₹16,900
+2026-01-14 17:53:03,908 - cli_app - INFO - Retrieving historical prices for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:53:03,908 - cli_app - INFO - Analyzing price drop for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:53:03,908 - cli_app - INFO - Saving product to storage: Apple AirPods 4 Wireless Earbuds, Bluetooth Headph...
+2026-01-14 17:53:03,908 - cli_app - INFO - Product 1 saved successfully
+2026-01-14 17:53:06,913 - cli_app - INFO - Processing product 2/3: Invalid Domain Test
+2026-01-14 17:53:06,913 - cli_app - INFO - Processing product 2/3: Invalid Domain Test
+2026-01-14 17:53:06,914 - cli_app - INFO - Navigating to URL: https://invalid-domain-xyz.com/product
+2026-01-14 17:53:07,311 - cli_app - ERROR - Playwright error during navigation to https://invalid-domain-xyz.com/product: Page.goto: net::ERR_NAME_NOT_RESOLVED at https://invalid-domain-xyz.com/product
+Call log:
+  - navigating to "https://invalid-domain-xyz.com/product", waiting until "domcontentloaded"
+
+2026-01-14 17:53:07,311 - cli_app - WARNING - Failed to scrape product 2

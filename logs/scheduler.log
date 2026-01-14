@@ -1,0 +1,38 @@
+2026-01-14 17:49:06,777 - __main__ - INFO - PriceTrackerScheduler initialized
+2026-01-14 17:49:06,778 - __main__ - INFO -   Interval: Every 1 hours
+2026-01-14 17:49:06,778 - __main__ - INFO -   Python: /Users/navaneethb/Desktop/programming/React Projects/ecom-price-tracker/.venv/bin/python
+2026-01-14 17:49:06,778 - __main__ - INFO -   Script: /Users/navaneethb/Desktop/programming/React Projects/ecom-price-tracker/tracker.py
+2026-01-14 17:49:06,778 - __main__ - INFO - 
+================================================================================
+2026-01-14 17:49:06,778 - __main__ - INFO - 🚀 PRICE TRACKER SCHEDULER STARTING
+2026-01-14 17:49:06,778 - __main__ - INFO - ================================================================================
+2026-01-14 17:49:06,778 - __main__ - INFO - Schedule: Every 1 hours
+2026-01-14 17:49:06,778 - __main__ - INFO - Immediate run: Yes
+2026-01-14 17:49:06,778 - __main__ - INFO - Press Ctrl+C to stop
+2026-01-14 17:49:06,778 - __main__ - INFO - ================================================================================
+
+2026-01-14 17:49:06,778 - __main__ - INFO - Running initial price check...
+2026-01-14 17:49:06,778 - __main__ - INFO - ================================================================================
+2026-01-14 17:49:06,778 - __main__ - INFO - Starting scheduled price check #1
+2026-01-14 17:49:06,778 - __main__ - INFO - Time: 2026-01-14 17:49:06
+2026-01-14 17:49:06,778 - __main__ - INFO - ================================================================================
+2026-01-14 17:49:06,778 - __main__ - INFO - Executing command: /Users/navaneethb/Desktop/programming/React Projects/ecom-price-tracker/.venv/bin/python tracker.py check
+2026-01-14 17:52:59,614 - __main__ - INFO - PriceTrackerScheduler initialized
+2026-01-14 17:52:59,614 - __main__ - INFO -   Interval: Every 1 hours
+2026-01-14 17:52:59,614 - __main__ - INFO -   Python: /Users/navaneethb/Desktop/programming/React Projects/ecom-price-tracker/.venv/bin/python
+2026-01-14 17:52:59,614 - __main__ - INFO -   Script: /Users/navaneethb/Desktop/programming/React Projects/ecom-price-tracker/tracker.py
+2026-01-14 17:52:59,614 - __main__ - INFO - 
+================================================================================
+2026-01-14 17:52:59,614 - __main__ - INFO - 🚀 PRICE TRACKER SCHEDULER STARTING
+2026-01-14 17:52:59,614 - __main__ - INFO - ================================================================================
+2026-01-14 17:52:59,614 - __main__ - INFO - Schedule: Every 1 hours
+2026-01-14 17:52:59,614 - __main__ - INFO - Immediate run: Yes
+2026-01-14 17:52:59,614 - __main__ - INFO - Press Ctrl+C to stop
+2026-01-14 17:52:59,614 - __main__ - INFO - ================================================================================
+
+2026-01-14 17:52:59,614 - __main__ - INFO - Running initial price check...
+2026-01-14 17:52:59,614 - __main__ - INFO - ================================================================================
+2026-01-14 17:52:59,614 - __main__ - INFO - Starting scheduled price check #1
+2026-01-14 17:52:59,614 - __main__ - INFO - Time: 2026-01-14 17:52:59
+2026-01-14 17:52:59,614 - __main__ - INFO - ================================================================================
+2026-01-14 17:52:59,614 - __main__ - INFO - Executing command: /Users/navaneethb/Desktop/programming/React Projects/ecom-price-tracker/.venv/bin/python tracker.py check

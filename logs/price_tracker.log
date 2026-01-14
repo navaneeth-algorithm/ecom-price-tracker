@@ -1,0 +1,32 @@
+2026-01-14 17:23:00,957 - cli_app - INFO - Starting price check command
+2026-01-14 17:23:00,958 - cli_app - INFO - CSV storage initialized successfully
+2026-01-14 17:23:00,958 - cli_app - INFO - Found 3 product(s) to track
+2026-01-14 17:23:00,958 - cli_app - INFO - Launching Playwright browser
+2026-01-14 17:23:01,451 - cli_app - INFO - Browser launched successfully
+2026-01-14 17:23:01,868 - cli_app - INFO - Browser context and page created successfully
+2026-01-14 17:23:01,868 - cli_app - INFO - Processing product 1/3: Apple AirPods 4
+2026-01-14 17:23:01,868 - cli_app - INFO - Navigating to URL: https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:23:03,790 - cli_app - INFO - Successfully navigated to https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:23:03,790 - cli_app - INFO - Waiting for product title element for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:23:03,859 - cli_app - INFO - Successfully extracted product name: Apple AirPods 4 Wireless Earbuds, Bluetooth Headph...
+2026-01-14 17:23:03,859 - cli_app - INFO - Waiting for price element for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:23:03,870 - cli_app - INFO - Successfully extracted price: ₹16,900
+2026-01-14 17:23:03,870 - cli_app - INFO - Successfully scraped product: Apple AirPods 4 Wireless Earbuds, Bluetooth Headph... - ₹16,900
+2026-01-14 17:23:03,870 - cli_app - INFO - Retrieving historical prices for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:23:03,870 - cli_app - INFO - Analyzing price drop for https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG
+2026-01-14 17:23:03,870 - cli_app - INFO - Saving product to storage: Apple AirPods 4 Wireless Earbuds, Bluetooth Headph...
+2026-01-14 17:23:03,870 - cli_app - INFO - Product 1 saved successfully
+2026-01-14 17:23:06,873 - cli_app - INFO - Processing product 2/3: Invalid Domain Test
+2026-01-14 17:23:06,873 - cli_app - INFO - Navigating to URL: https://invalid-domain-xyz.com/product
+2026-01-14 17:23:07,188 - cli_app - ERROR - Playwright error during navigation to https://invalid-domain-xyz.com/product: Page.goto: net::ERR_NAME_NOT_RESOLVED at https://invalid-domain-xyz.com/product
+Call log:
+  - navigating to "https://invalid-domain-xyz.com/product", waiting until "domcontentloaded"
+
+2026-01-14 17:23:07,188 - cli_app - WARNING - Failed to scrape product 2
+2026-01-14 17:23:10,189 - cli_app - INFO - Processing product 3/3: Missing Elements Test
+2026-01-14 17:23:10,189 - cli_app - INFO - Navigating to URL: https://www.google.com
+2026-01-14 17:23:10,872 - cli_app - INFO - Successfully navigated to https://www.google.com
+2026-01-14 17:23:10,872 - cli_app - INFO - Waiting for product title element for https://www.google.com
+2026-01-14 17:23:30,061 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
