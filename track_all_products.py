@@ -133,6 +133,38 @@ def scrape_all_products():
                 # Extract just the price value without currency symbol for storage
                 price_value = scraped_data['price'].replace('₹', '').replace(',', '').strip()
                 
+                # Get historical prices for this product before saving new price
+                print(f"\n📊 Checking price history...")
+                historical_prices = data_storage.get_historical_prices(scraped_data['url'])
+                
+                # Check for price drop
+                if historical_prices:
+                    print(f"\n🔍 Analyzing price drop...")
+                    is_price_drop = data_storage.detect_price_drop(
+                        product_id=scraped_data['url'],
+                        current_price=price_value,
+                        historical_prices_list=historical_prices,
+                        price_drop_threshold=0  # Set to 0 to detect any price drop
+                    )
+                    
+                    if is_price_drop:
+                        # Find the previous lowest price
+                        lowest_historical_price = min(float(p['price']) for p in historical_prices)
+                        current_price_float = float(price_value)
+                        savings = lowest_historical_price - current_price_float
+                        savings_percent = (savings / lowest_historical_price) * 100
+                        
+                        # Print price drop notification
+                        print("\n" + "🎉" * 40)
+                        print("🚨 PRICE DROP ALERT! 🚨")
+                        print("🎉" * 40)
+                        print(f"\n📦 Product: {scraped_data['name'][:80]}...")
+                        print(f"💰 New Price: ₹{current_price_float:,.2f}")
+                        print(f"📉 Previous Lowest: ₹{lowest_historical_price:,.2f}")
+                        print(f"💵 You Save: ₹{savings:,.2f} ({savings_percent:.2f}% OFF)")
+                        print(f"🔗 URL: {scraped_data['url'][:60]}...")
+                        print("\n" + "🎉" * 40)
+                
                 # Save the product data to CSV
                 print(f"\n📝 Saving to storage...")
                 success = data_storage.add_product(
