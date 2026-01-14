@@ -242,6 +242,80 @@ def display_price_history(product_identifier):
     print("\n" + "=" * 100)
 
 
+def detect_price_drop(product_id, current_price, historical_prices_list, price_drop_threshold=0):
+    """
+    Detect if the current price represents a price drop compared to historical prices.
+    
+    Args:
+        product_id (str): Product identifier (URL or name) - used for logging
+        current_price (float): Current price to check
+        historical_prices_list (list): List of dictionaries containing historical prices
+                                       Each dict should have a 'price' key
+        price_drop_threshold (float): Minimum price drop required to trigger detection.
+                                     Can be absolute value or percentage (default: 0)
+    
+    Returns:
+        bool: True if current price is lower than the lowest historical price by at least
+              the threshold, False otherwise
+    
+    Examples:
+        >>> detect_price_drop("product1", 100, [{'price': '150'}, {'price': '120'}], 10)
+        True  # 100 < (120 - 10)
+        
+        >>> detect_price_drop("product2", 115, [{'price': '150'}, {'price': '120'}], 10)
+        False  # 115 > (120 - 10)
+    """
+    # Handle empty historical prices list
+    if not historical_prices_list:
+        print(f"⚠️  No historical prices available for {product_id[:50]}... Cannot detect price drop.")
+        return False
+    
+    try:
+        # Convert current price to float
+        current_price_float = float(current_price)
+        
+        # Extract and convert all historical prices to floats
+        historical_prices_float = []
+        for price_entry in historical_prices_list:
+            try:
+                price_value = float(price_entry['price'])
+                historical_prices_float.append(price_value)
+            except (ValueError, KeyError):
+                continue
+        
+        # Check if we have valid historical prices
+        if not historical_prices_float:
+            print(f"⚠️  No valid historical prices found for {product_id[:50]}...")
+            return False
+        
+        # Find the lowest historical price
+        lowest_historical_price = min(historical_prices_float)
+        
+        # Calculate the threshold price (lowest price minus threshold)
+        threshold_price = lowest_historical_price - price_drop_threshold
+        
+        # Detect price drop
+        is_price_drop = current_price_float < threshold_price
+        
+        # Log the comparison
+        if is_price_drop:
+            savings = lowest_historical_price - current_price_float
+            print(f"🎉 Price drop detected for {product_id[:50]}...")
+            print(f"   Current: {current_price_float:,.2f}")
+            print(f"   Previous Lowest: {lowest_historical_price:,.2f}")
+            print(f"   Savings: {savings:,.2f} ({(savings/lowest_historical_price)*100:.2f}%)")
+        else:
+            print(f"✓ No significant price drop for {product_id[:50]}...")
+            print(f"   Current: {current_price_float:,.2f}")
+            print(f"   Previous Lowest: {lowest_historical_price:,.2f}")
+        
+        return is_price_drop
+    
+    except (ValueError, TypeError) as e:
+        print(f"✗ Error detecting price drop: {e}")
+        return False
+
+
 # Main execution for testing
 if __name__ == "__main__":
     print("=" * 80)
