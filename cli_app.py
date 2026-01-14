@@ -18,11 +18,12 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('price_tracker.log'),
+        logging.FileHandler('app.log'),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
+logger.info("E-commerce Price Tracker CLI module loaded")
 
 
 def display_menu():
@@ -44,6 +45,7 @@ def add_product_cli():
     Interactive function to add a new product to track.
     Prompts user for product URL, name, and category.
     """
+    logger.info("Starting add product workflow")
     print("\n" + "=" * 80)
     print("ADD NEW PRODUCT TO TRACK")
     print("=" * 80)
@@ -53,11 +55,13 @@ def add_product_cli():
     product_url = input("Product URL: ").strip()
     
     if not product_url:
+        logger.warning("Product URL validation failed: empty URL")
         print("❌ Error: Product URL cannot be empty!")
         return False
     
     # Validate URL format
     if not (product_url.startswith('http://') or product_url.startswith('https://')):
+        logger.warning(f"Product URL validation failed: invalid format - {product_url}")
         print("❌ Error: Please enter a valid URL (starting with http:// or https://)")
         return False
     
@@ -95,15 +99,18 @@ def add_product_cli():
     )
     
     if success:
+        logger.info(f"Product added successfully: {product_name} | URL: {product_url}")
         print("\n✅ Product added successfully to tracking list!")
         return True
     else:
+        logger.error(f"Failed to add product: {product_name} | URL: {product_url}")
         print("\n❌ Failed to add product.")
         return False
 
 
 def list_products_cli():
     """Display all tracked products"""
+    logger.info("Displaying tracked products list")
     print("\n" + "=" * 80)
     print("TRACKED PRODUCTS")
     print("=" * 80)
@@ -116,6 +123,7 @@ def list_products_cli():
 
 def view_price_history_cli():
     """View price history for a specific product"""
+    logger.info("Starting view price history workflow")
     print("\n" + "=" * 80)
     print("VIEW PRICE HISTORY")
     print("=" * 80)
@@ -125,6 +133,7 @@ def view_price_history_cli():
         products = product_loader.load_products()
         
         if not products:
+            logger.info("No products found for price history view")
             print("\n⚠️  No products found. Add products first!")
             return
         
@@ -267,6 +276,7 @@ def view_products_cli():
     CLI command to view all tracked products with their latest prices.
     Retrieves products and displays them in a formatted table.
     """
+    logger.info("Starting view products command")
     print("\n🔍 Fetching tracked products...")
     
     # Get all products with their latest prices
@@ -505,6 +515,7 @@ def run_check_command():
             
             # Iterate through all products
             for idx, product in enumerate(products, 1):
+                logger.info(f"Processing product {idx}/{len(products)}: {product.get('name', 'Unknown')}")
                 print(f"\n\n{'#'*80}")
                 print(f"Processing Product {idx}/{len(products)}")
                 print(f"{'#'*80}")
@@ -640,6 +651,7 @@ def run_check_command():
         return
     
     # Print summary
+    logger.info(f"Scraping summary: Success={success_count}, Failed={failed_count}, Total={len(products)}")
     print("\n" + "=" * 80)
     print("SCRAPING SUMMARY")
     print("=" * 80)
@@ -650,6 +662,7 @@ def run_check_command():
     
     # Print price drop summary
     if price_drops:
+        logger.info(f"Found {len(price_drops)} price drop(s) in this check")
         print("\n" + "🎉" * 40)
         print(f"🚨 FOUND {len(price_drops)} PRICE DROP(S)!")
         print("🎉" * 40)
@@ -669,6 +682,7 @@ def run_check_command():
 
 def main():
     """Main CLI application loop"""
+    logger.info("Starting E-commerce Price Tracker CLI application")
     print("\n🚀 Welcome to E-commerce Price Tracker CLI!")
     
     while True:
@@ -685,9 +699,11 @@ def main():
         elif choice == '4':
             remove_product_cli()
         elif choice == '5':
+            logger.info("User exited the application")
             print("\n👋 Thank you for using Price Tracker CLI. Goodbye!")
             sys.exit(0)
         else:
+            logger.warning(f"Invalid menu choice entered: {choice}")
             print("\n❌ Invalid choice! Please enter a number between 1 and 5.")
         
         # Pause before showing menu again
