@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Apple AirPods 4",
+    "url": "https://www.amazon.in/Apple-Headphones-Cancellation-Transparency-Personalised/dp/B0DGJ6G1XG",
+    "category": "Electronics",
+    "active": true
+  },
+  {
+    "id": 2,
+    "name": "Invalid Domain Test",
+    "url": "https://invalid-domain-xyz.com/product",
+    "category": "Test",
+    "active": true
+  },
+  {
+    "id": 3,
+    "name": "Missing Elements Test",
+    "url": "https://www.google.com",
+    "category": "Test",
+    "active": true
+  }
+]
