@@ -19,7 +19,25 @@ from pathlib import Path
 src_path = Path(__file__).parent / 'src'
 sys.path.insert(0, str(src_path))
 
-from src.tracker import main
+from src.cli_app import (
+    setup_argparse,
+    run_check_command,
+    view_products_cli,
+    quick_add_product,
+    main as interactive_main,
+)
+
 
 if __name__ == '__main__':
-    main()
+    # Mirror the CLI dispatch used in src/tracker.py so `python main.py <cmd>` works
+    parser = setup_argparse()
+    args = parser.parse_args()
+
+    if args.command == 'check':
+        run_check_command()
+    elif args.command == 'view':
+        view_products_cli()
+    elif args.command == 'add':
+        quick_add_product()
+    else:
+        interactive_main()

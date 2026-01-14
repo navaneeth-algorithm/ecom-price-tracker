@@ -16,6 +16,7 @@ A powerful, automated price monitoring system for tracking product prices across
 - [Scheduling Automated Runs](#scheduling-automated-runs)
 - [Troubleshooting](#troubleshooting)
 - [Documentation](#documentation)
+- [Resources](#resources)
 
 ---
 
@@ -825,6 +826,12 @@ python scheduler.py --help
 - **Scheduling**: See [SCHEDULING_GUIDE.md](SCHEDULING_GUIDE.md)
 - **Troubleshooting**: See [Troubleshooting](#troubleshooting) section
 - **All Commands**: See [CLI_QUICK_REFERENCE.md](CLI_QUICK_REFERENCE.md)
+
+---
+
+## 📹 Resources
+
+- **Video Demo**: [Watch on YouTube](https://youtu.be/gTPwOjdsiAI)
 
 ---
 
