@@ -1,78 +1,74 @@
-# E-commerce Price Tracker with Python & Playwright
+# Phase 1: Phase 1: Foundation & Initial Scraping
 
-This roadmap guides you through building a robust e-commerce price tracker using Python and Playwright. You will learn to scrape product data, store it efficiently, implement price comparison logic, and automate the tracking process. By the end, you'll have a functional tool to monitor product price changes on various online stores.
-
-📊 **4 Phases** | **19 Tasks**
+⏱️ **Estimated Duration:** 1 week
 
 ---
 
-## 🛠️ Tech Stack
-- Python 3.9+
-- Playwright for Python 1.30+
-- Requests (for basic HTTP if needed)
-- A data storage solution (e.g., SQLite, JSON, CSV)
+## 🎯 Milestone 1: Environment Setup & Basic Navigation
 
-## 📋 Requirements
-- Scrape product name, current price, and URL from e-commerce websites.
-- Store scraped data, including historical price points for each product.
-- Identify and notify when a tracked product's price drops.
-- Allow users to add new products to track.
-- Automate the scraping and price check process at regular intervals.
+### Task 1: Set up Python virtual environment and project structure
 
-## ✅ Acceptance Criteria
-- [ ] The application can successfully scrape product name, current price, and URL from at least 3 different e-commerce websites.
-- [ ] All scraped data, including historical price points with timestamps, is persistently stored and accessible.
-- [ ] The system accurately identifies and notifies the user (via console or log) when a tracked product's price drops below its previous lowest recorded price.
-- [ ] Users can interact via a command-line interface to add new product URLs to track and view a list of all currently tracked products.
-- [ ] The scraping and price comparison process can be automated to run at a predefined schedule (e.g., daily).
-- [ ] The application includes basic error handling for common scraping failures (e.g., network issues, element not found).
-- [ ] The project includes a README.md file with clear setup and usage instructions.
+- [ ] **Status:** Not Started
 
-## 🗺️ Roadmap
+**Description:**
+Initialize a new Python project, create a virtual environment, and install necessary packages like Playwright.
 
-### Phase 1: Phase 1: Foundation & Initial Scraping
-⏱️ 1 week | 4 tasks
+**✅ Definition of Done:**
+> The `price_tracker` project directory exists, contains an active Python virtual environment named `.venv`, and running `pip list` within this activated environment displays `playwright` and `requests` as installed packages.
 
-- **Milestone 1:** Environment Setup & Basic Navigation (2 tasks)
-- **Milestone 2:** Single Product Data Extraction (2 tasks)
-
-👉 `git checkout phase-1` to start
-
-### Phase 2: Phase 2: Data Management & Multiple Products
-⏱️ 1 week | 4 tasks
-
-- **Milestone 1:** Data Storage Integration (2 tasks)
-- **Milestone 2:** Tracking Multiple Products (2 tasks)
-
-👉 `git checkout phase-2` to start
-
-### Phase 3: Phase 3: Price Tracking Logic & User Interaction
-⏱️ 1 week | 6 tasks
-
-- **Milestone 1:** Price Comparison & Alert Logic (3 tasks)
-- **Milestone 2:** Basic User Interface (CLI) (3 tasks)
-
-👉 `git checkout phase-3` to start
-
-### Phase 4: Phase 4: Refinement & Deployment (Capstone)
-⏱️ 1 week | 5 tasks
-
-- **Milestone 1:** Robustness & Error Handling (3 tasks)
-- **Milestone 2:** Scheduling & Documentation (2 tasks)
-
-👉 `git checkout phase-4` to start
+**Concepts:** `Python environment` `virtualenv` `pip` `project setup`
 
 ---
 
-## 🚀 Getting Started
+### Task 2: Write a basic Playwright script to navigate a website
 
-1. Clone this repository
-2. `git checkout phase-1` to start Phase 1
-3. Follow the tasks in the README
-4. Commit your progress as you go
-5. When done, merge to main and move to next phase
-verified
+- [ ] **Status:** Not Started
+
+**Description:**
+Create a Python script using Playwright to launch a browser, navigate to a specified e-commerce product URL (e.g., an Amazon product page), and take a screenshot of the page.
+
+**✅ Definition of Done:**
+> A Python script successfully launches a browser, navigates to a specified e-commerce product URL, and saves a full-page screenshot of that page to a file in the project directory.
+
+**Concepts:** `Playwright basics` `browser automation` `navigation` `screenshot`
+
+---
+
+## 🎯 Milestone 2: Single Product Data Extraction
+
+### Task 1: Identify product name and price elements on a target page
+
+- [ ] **Status:** Not Started
+
+**Description:**
+Using browser developer tools, inspect the HTML structure of an e-commerce product page to locate the CSS selectors or XPath for the product's name and its current price.
+
+**✅ Definition of Done:**
+> The CSS selectors or XPath for the product name and current price on a target e-commerce page are identified and documented.
+
+**Concepts:** `HTML structure` `CSS selectors` `XPath` `Developer tools`
+
+---
+
+### Task 2: Extract product name and price using Playwright
+
+- [ ] **Status:** Not Started
+
+**Description:**
+Modify the Playwright script to use the identified selectors to extract the product name and price as text. Print these extracted values to the console.
+
+**✅ Definition of Done:**
+> The Playwright script executes successfully, extracts the product name and price using the specified selectors, and prints both values clearly to the console.
+
+**Concepts:** `Playwright selectors` `text extraction` `web scraping`
+
+---
+
+## 📊 Progress
+
+Track your progress by checking off tasks as you complete them!
+
+When done with this phase, merge to `main` and move to `phase-2`.
 
 ---
 *Generated by [RoadmapFlow](https://roadmapflow.com) 🚀*
-
